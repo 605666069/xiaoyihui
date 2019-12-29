@@ -1,0 +1,38 @@
+
+.content.data-v-2739a520 {
+	background-color: #FFFFFF;
+}
+.banner.data-v-2739a520 {
+	background-color: #3CCAA7;
+	height: 16rpx;
+}
+.logo.data-v-2739a520 {
+	width: 148rpx;
+	height: 148rpx;
+	margin-top: 75rpx;
+}
+.uni-common-mt.data-v-2739a520 {
+	width: 80%;
+	margin: 0 auto;
+}
+input.data-v-2739a520,._select.data-v-2739a520 {
+	border: 1px solid #BFBFBF;
+	font-size: 26rpx;
+	height: 20rpx;
+}
+.content.data-v-2739a520 .show-box {
+	border-radius: 0;
+}
+.title.data-v-2739a520 {
+	font-size: 32rpx;
+	margin-top: 20rpx;
+}
+.text-box.data-v-2739a520 {
+	font-size: 24rpx;
+	text-align: center;
+	padding-top: 20rpx;
+}
+.text.data-v-2739a520 {
+	color: #3EAEDC;
+}
+

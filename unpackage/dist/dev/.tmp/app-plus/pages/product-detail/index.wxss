@@ -1,0 +1,52 @@
+
+.card.data-v-c6405d7c .uni-card {
+	min-height: 95%;
+}
+.iamge.data-v-c6405d7c {
+	width: 260rpx;
+	height: 260rpx;
+}
+.text.data-v-c6405d7c {
+	padding-left: 20rpx;
+	width: 100%;
+	display: block;
+	position: relative;
+	overflow: hidden;
+}
+.title.data-v-c6405d7c {
+	-webkit-box-pack: justify;
+	-webkit-justify-content: space-between;
+	        justify-content: space-between;
+}
+.title-left.data-v-c6405d7c {
+	color: #4D4D4D;
+	font-size: 30rpx;
+	width: 320rpx;
+}
+.title-right.data-v-c6405d7c {
+	color: #4D4D4D;
+	font-size: 25rpx;
+	text-align: right;
+	/* vertical-align: bottom; */
+}
+.text-line.data-v-c6405d7c  {
+	width: 100%;
+}
+.mini-btn.data-v-c6405d7c {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+.text-bottom.data-v-c6405d7c {
+	width: 320rpx;
+}
+.main.data-v-c6405d7c {
+	-webkit-box-pack: justify;
+	-webkit-justify-content: space-between;
+	        justify-content: space-between;
+}
+.main-title.data-v-c6405d7c {
+	font-size: 30rpx;
+	padding-bottom: 10rpx;
+}
+

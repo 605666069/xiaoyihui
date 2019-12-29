@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "小医惠登录",
+  "usingComponents": {
+    "xfl-select": "/common/xfl-select"
+  }
+}

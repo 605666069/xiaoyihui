@@ -1,0 +1,10 @@
+(global["webpackJsonp"]=global["webpackJsonp"]||[]).push([["components/uni-load-more/uni-load-more"],{"0443":function(t,n,e){},"06dc":function(t,n,e){"use strict";var o=function(){var t=this,n=t.$createElement;t._self._c},u=[];e.d(n,"a",function(){return o}),e.d(n,"b",function(){return u})},"1f64":function(t,n,e){"use strict";e.r(n);var o=e("06dc"),u=e("f8e5");for(var c in u)"default"!==c&&function(t){e.d(n,t,function(){return u[t]})}(c);e("2ef1");var a=e("2877"),i=Object(a["a"])(u["default"],o["a"],o["b"],!1,null,"a3f69cca",null);n["default"]=i.exports},"2ef1":function(t,n,e){"use strict";var o=e("0443"),u=e.n(o);u.a},3030:function(t,n,e){"use strict";(function(t){Object.defineProperty(n,"__esModule",{value:!0}),n.default=void 0;t.getSystemInfoSync().platform;var e={name:"UniLoadMore",props:{status:{type:String,default:"more"},showIcon:{type:Boolean,default:!0},iconType:{type:String,default:"auto"},iconSize:{type:Number,default:24},color:{type:String,default:"#777777"},contentText:{type:Object,default:function(){return{contentdown:"上拉显示更多",contentrefresh:"正在加载...",contentnomore:"没有更多数据了"}}}},data:function(){return{}},computed:{iconSnowWidth:function(){return console.log(2*(Math.floor(this.iconSize/24)||1)),2*(Math.floor(this.iconSize/24)||1)}},mounted:function(){},methods:{onClick:function(){this.$emit("clickLoadMore",{detail:{status:this.status}})}}};n.default=e}).call(this,e("543d")["default"])},f8e5:function(t,n,e){"use strict";e.r(n);var o=e("3030"),u=e.n(o);for(var c in o)"default"!==c&&function(t){e.d(n,t,function(){return o[t]})}(c);n["default"]=u.a}}]);
+;(global["webpackJsonp"] = global["webpackJsonp"] || []).push([
+    'components/uni-load-more/uni-load-more-create-component',
+    {
+        'components/uni-load-more/uni-load-more-create-component':(function(module, exports, __webpack_require__){
+            __webpack_require__('543d')['createComponent'](__webpack_require__("1f64"))
+        })
+    },
+    [['components/uni-load-more/uni-load-more-create-component']]
+]);

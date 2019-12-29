@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "产品详情",
+  "usingComponents": {
+    "uni-card": "/components/uni-card/uni-card",
+    "uni-number-box": "/components/uni-number-box/uni-number-box"
+  }
+}
