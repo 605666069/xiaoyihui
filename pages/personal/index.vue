@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
-		<!-- <Client></Client> -->
-		<Sale></Sale>
+		<Client></Client>
+		<!-- <Sale></Sale> -->
 	</view>
 </template>
 

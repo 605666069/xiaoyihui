@@ -202,15 +202,17 @@ var _default =
       uni.chooseImage({
         success: function success(chooseImageRes) {
           var tempFilePaths = chooseImageRes.tempFilePaths;
+
           uni.uploadFile({
-            url: 'https://www.example.com/upload', //仅为示例，非真实的接口地址
+            url: 'http://120.27.27.185:12341/ApiYouzan/upload/upload_file',
             filePath: tempFilePaths[0],
             name: 'file',
-            formData: {
-              'user': 'test' },
+            formData: {},
+
 
             success: function success(uploadFileRes) {
-              console.log(uploadFileRes.data);
+              console.log(uploadFileRes);
+              // console.log(uploadFileRes.data);
             } });
 
         } });

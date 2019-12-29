@@ -46,6 +46,5 @@
     "uni-load-more": "/components/uni-load-more/uni-load-more",
     "uni-number-box": "/components/uni-number-box/uni-number-box",
     "uni-popup": "/components/uni-popup/uni-popup"
-  },
-  "sitemapLocation": "sitemap0.json"
+  }
 }

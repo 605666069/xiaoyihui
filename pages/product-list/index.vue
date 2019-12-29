@@ -1,25 +1,26 @@
 <template>
 	<view class="content">
 		<view class="example-body">
-			<uni-search-bar @confirm="search" radius="100" clearButton="always" @input="input" @cancel="cancel"  fgColor="#ededed" bgColor="#3CCAA7" />
+			<uni-search-bar @confirm="getList" radius="100" @input="changeGetList" @cancel="cancel" clearButton="always"  fgColor="#ededed" bgColor="#3CCAA7" />
 		</view>
 
 		
 		<view class="card-list">
-			<uni-card  :is-shadow="true" @click="toDetail()" v-for="d in list">
+			<uni-card  :is-shadow="true" @click="toDetail(d)" v-for="(d,index) in list" :key="d.product_id">
 				<view class="">
 					<view class="uni-flex uni-row  btn-list ">
 						<view class="uni-flex icon my-center">
-							<image src="../../static/uni.png" mode="" class="iamge"></image>
+							<image :src="d.product_pic" mode="" class="iamge"></image>
 						</view>
 						<view class="uni-flex text">
 							<view class="title uni-flex ">
-								<text  class="title-left text-overflow">阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片</text>
-								<text  class="title-right text-overflow">剩余 <text class="yellow"> 100 </text> 箱</text>
+								<text  class="title-left text-overflow" >{{d.product_name}}</text>
+								<text  class="title-right text-overflow">剩余 <text class="yellow"> {{d.product_num}} </text> {{d.product_unit}}</text>
 							</view>
 							<view class="uni-flex">
-								<text  class="text-line">【阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片
-								阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片</text>
+								<view  class="text-line" >
+									<rich-text :nodes="d.product_detail"></rich-text>
+								</view>
 							</view>
 							
 							<button class="mini-btn" type="primary" size="mini">下单</button>
@@ -28,7 +29,7 @@
 					</view>
 				</view>
 			</uni-card>
-			<uni-load-more :status="status"  :icon-size="12" v-show="list.length >= 10"/>
+			<uni-load-more :status="status"  :icon-size="12" v-if="list.length >= 10"/>
 			
 		</view>
 		
@@ -51,12 +52,13 @@
 				reload:false,
 				status: 'more',
 				last_id:'',
-				list:[1,2,3,4,5,6,7,8,9,10],
+				list:[],
 				search_data:{
 					search_key:'',
 					page:1,
 					rows:10
-				}
+				},
+				total:0
 			}
 		},
 		components: {
@@ -64,17 +66,15 @@
 			uniSection
 		},
 		onLoad() {
-			console.log('load');
+			this.getList({value:this.search_data.search_key});
 		},
 		onPullDownRefresh() {
 			
 		},
 		onShow() {
-			this.getList();
+			
 		},
 		onReachBottom() {
-			console.log(22222)
-			this.changeStatus('loading');
 			this.getList();
 		},
 		methods: {
@@ -90,32 +90,57 @@
 			onClick(res) {
 				
 			},
+			changeGetList(res) {
+				if(!res.value) this.getList(res);
+			},
+			
 			getList(res) {
-				if(!res&&this.status == 'noMore') return;
-				if(res) {
+			
+				if(!res) {
+					//数据饱和不再进行调用
+					if(this.status == 'noMore') return;
+					//加载更多增加页码
+					this.search_data.page++;
+					this.changeStatus('loading');
+				} else {
+					//搜索重置页码
 					this.resetPage();
 					this.search_data.search_key = res.value
 				}
+				
+				
 				let data = {
 					param:this.search_data
 				}
 				this.$ajax.post('home/get_product_list',{data: data}).then((result)=>{
-					console.log(result)
+					
+					this.$set(this,'total',result.total);
+					//无数据返回则重置状态
+					if (this.total != 0 && this.list.length >= this.total ) {
+						this.status = 'noMore';
+						this.search_data.page -- ;
+						return;
+					}
+					let new_list = [];
+					if (this.status == 'loading') {
+						//合并数据
+						new_list = this.list.concat(result.product_list);
+						this.changeStatus();
+					} else {
+						new_list = result.product_list
+					}
+					this.$set(this,'list',new_list);
 					
 				});
-				// let _this = this;
-				// let result = [];
-				// setTimeout(()=>{
-				// 	_this.changeStatus();
-				// },1000);
 				
-				
-				
-				console.log(this.status)
 			},
 			resetPage () {
 				this.search_data.page = 1;
-				this.search_data.rows = 10;
+				//重新搜索返回页面顶部
+				uni.pageScrollTo({
+					scrollTop: 0,
+					duration: 0
+				});
 				this.changeStatus();
 				
 			},
@@ -123,12 +148,18 @@
 				this.status = status||'more';
 			},
 			toDetail(res) {
-				let detail = {
-					id:1
-				}
-				uni.navigateTo({
-					url: '/pages/product-detail/index?detailDate=' + encodeURIComponent(JSON.stringify(detail))
+				let _this = this;
+				this.$eventHub.$on('product_detail', function(data) {
+					res.product_num = data.product_num;
+					
+					//清除监听，不清除会消耗资源
+					_this.$eventHub.$off('product_detail');
 				});
+
+				this.$router.push("/pages/product-detail/index",{
+					product_detail:res
+				})
+				
 			}
 	
 		}
@@ -139,7 +170,7 @@
 <style scoped>
 	.example-body {
 		position: fixed;
-		top: 0;
+		top: 0rpx;
 		left: 0;
 		right: 0;
 		z-index: 2;

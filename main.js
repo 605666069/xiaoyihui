@@ -30,7 +30,7 @@ Vue.prototype.$router = $router
 import request from "@/api/index.js"
 Vue.prototype.$ajax = request;
 
-
+Vue.prototype.$eventHub = new Vue();
 
 
 const app = new Vue({

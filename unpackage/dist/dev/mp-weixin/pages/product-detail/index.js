@@ -155,39 +155,60 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 var _default =
 {
   data: function data() {
-    return {};
+    return {
+      product_id: 0,
+      product_detail: {},
+
+
+      total_num: 0,
+      task_num: 0 };
 
   },
+  onShow: function onShow() {
+    var product_detail = this.$router.route.query.product_detail || {};
+    this.product_id = product_detail.product_id || 0;
+    this.getDetail();
+  },
   onLoad: function onLoad(data) {
-    // let option = {}
-    // const payload = data.detailDate || data.payload;
-    // try {
-    // 	option = JSON.parse(decodeURIComponent(payload));
-    // } catch (error) {
-    // 	option = JSON.parse(payload);
-    // }
-    // console.log(option)
+
   },
   onPullDownRefresh: function onPullDownRefresh() {
   },
   onReachBottom: function onReachBottom() {
   },
   methods: {
-    submit: function submit() {
-      uni.showLoading({
-        title: '加载中',
-        mask: true });
+    changeTaskNum: function changeTaskNum(num) {
+      this.task_num = num;
+    },
+    getDetail: function getDetail() {var _this = this;
+      this.$ajax.post('home/get_product_list', { data: {
+          param: {
+            product_id: this.product_id } } }).
 
-      setTimeout(function () {
-        uni.hideLoading();
+      then(function (result) {
+        _this.product_detail = result.product_list[0] || {};
+        _this.total_num = _this.product_detail.product_num;
+      });
+    },
+    submit: function submit() {var _this2 = this;
+
+      uni.showLoading();
+      this.$ajax.post('Home/add_task_info', { data: {
+          param: {
+            task_num: this.task_num,
+            product_id: this.product_detail.product_id,
+            buyer_user_id: this.util.login_data.user_id } } }).
+
+      then(function (result) {
+        _this2.util.msg('产品下单成功');
+        var product_detail = result.product_info;
+        _this2.$eventHub.$emit('product_detail', product_detail);
         uni.navigateBack();
-      }, 1000);
+      });
+
     } } };exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
