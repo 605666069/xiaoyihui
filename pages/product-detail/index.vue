@@ -24,11 +24,11 @@
 			<view class="uni-flex main">
 				<view class="left-main " >
 					<view class="main-title">
-						<text>需求数量(箱)</text>
+						<text>需求数量({{product_detail.product_unit||''}})</text>
 					</view>
 					<uni-number-box id="min-numbox" :max="total_num" @change="changeTaskNum"></uni-number-box>
 					<view class="">
-						<text >剩余 <text class="yellow"> {{total_num}} </text> 箱</text>
+						<text >剩余 <text class="yellow"> {{total_num}} </text> {{product_detail.product_unit||''}}</text>
 					</view>
 				</view>
 				<view class="right-main">
@@ -40,7 +40,8 @@
 					</view>
 				</view>
 			</view>
-			<view class="pt-20">
+			<!-- - type 用户类型：1超级管理员，2业务员，3.客户 -->
+			<view class="pt-20" v-if="user_type!=2">
 				<button type="primary" @click="submit()">确认下单</button>
 			</view>
 		</uni-card>
@@ -57,7 +58,8 @@
 					
 				},
 				total_num:0,
-				task_num:0
+				task_num:0,
+				user_type:this.util.login_data.type||0,
 			}
 		},
 		onShow() {
@@ -87,7 +89,11 @@
 				});
 			},
 			submit () {
-			
+				if(!this.total_num) {
+					this.util.msg("当前产品无货");
+					return;
+				}
+				let num = (this.task_num >= this.total_num )?this.total_num:this.task_num;
 				uni.showLoading();
 				this.$ajax.post('Home/add_task_info',{data: {
 					param:{
@@ -96,10 +102,11 @@
 						buyer_user_id:this.util.login_data.user_id
 					}
 				}}).then((result)=>{
-					this.util.msg('产品下单成功');
+					
 					let product_detail = result.product_info;
 					this.$eventHub.$emit('product_detail',product_detail);
 					uni.navigateBack();
+					this.util.msg('产品下单成功');
 				});
 				
 			}

@@ -105,7 +105,7 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniSearchBar = function uniSearchBar() {return __webpack_require__.e(/*! import() | components/uni-search-bar/uni-search-bar */ "components/uni-search-bar/uni-search-bar").then(__webpack_require__.bind(null, /*! @/components/uni-search-bar/uni-search-bar.vue */ 127));};var uniSection = function uniSection() {return __webpack_require__.e(/*! import() | components/uni-section/uni-section */ "components/uni-section/uni-section").then(__webpack_require__.bind(null, /*! @/components/uni-section/uni-section.vue */ 134));};var _default =
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniSearchBar = function uniSearchBar() {return __webpack_require__.e(/*! import() | components/uni-search-bar/uni-search-bar */ "components/uni-search-bar/uni-search-bar").then(__webpack_require__.bind(null, /*! @/components/uni-search-bar/uni-search-bar.vue */ 134));};var _default =
 
 
 
@@ -151,12 +151,6 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       searchVal: '',
-      contentText: {
-        contentdown: '上拉加载更多',
-        contentrefresh: '加载中',
-        contentnomore: '没有更多' },
-
-      reload: false,
       status: 'more',
       last_id: '',
       list: [],
@@ -165,12 +159,12 @@ __webpack_require__.r(__webpack_exports__);
         page: 1,
         rows: 10 },
 
-      total: 0 };
+      total: 0,
+      index: 0 };
 
   },
   components: {
-    uniSearchBar: uniSearchBar,
-    uniSection: uniSection },
+    uniSearchBar: uniSearchBar },
 
   onLoad: function onLoad() {
     this.getList({ value: this.search_data.search_key });
@@ -254,10 +248,12 @@ __webpack_require__.r(__webpack_exports__);
     changeStatus: function changeStatus(status) {
       this.status = status || 'more';
     },
-    toDetail: function toDetail(res) {
+    toDetail: function toDetail(res, index) {
+      this.index = index;
       var _this = this;
       this.$eventHub.$on('product_detail', function (data) {
-        res.product_num = data.product_num;
+        _this.$set(_this.list, _this.index, data);
+
 
         //清除监听，不清除会消耗资源
         _this.$eventHub.$off('product_detail');

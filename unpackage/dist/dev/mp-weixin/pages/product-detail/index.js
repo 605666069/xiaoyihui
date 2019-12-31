@@ -155,6 +155,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 var _default =
 {
   data: function data() {
@@ -164,7 +165,8 @@ var _default =
 
 
       total_num: 0,
-      task_num: 0 };
+      task_num: 0,
+      user_type: this.util.login_data.type || 0 };
 
   },
   onShow: function onShow() {
@@ -194,7 +196,11 @@ var _default =
       });
     },
     submit: function submit() {var _this2 = this;
-
+      if (!this.total_num) {
+        this.util.msg("当前产品无货");
+        return;
+      }
+      var num = this.task_num >= this.total_num ? this.total_num : this.task_num;
       uni.showLoading();
       this.$ajax.post('Home/add_task_info', { data: {
           param: {
@@ -203,10 +209,11 @@ var _default =
             buyer_user_id: this.util.login_data.user_id } } }).
 
       then(function (result) {
-        _this2.util.msg('产品下单成功');
+
         var product_detail = result.product_info;
         _this2.$eventHub.$emit('product_detail', product_detail);
         uni.navigateBack();
+        _this2.util.msg('产品下单成功');
       });
 
     } } };exports.default = _default;

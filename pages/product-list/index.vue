@@ -6,7 +6,7 @@
 
 		
 		<view class="card-list">
-			<uni-card  :is-shadow="true" @click="toDetail(d)" v-for="(d,index) in list" :key="d.product_id">
+			<uni-card  :is-shadow="true" v-for="(d,index) in list" :key="d.product_id">
 				<view class="">
 					<view class="uni-flex uni-row  btn-list ">
 						<view class="uni-flex icon my-center">
@@ -23,7 +23,7 @@
 								</view>
 							</view>
 							
-							<button class="mini-btn" type="primary" size="mini">下单</button>
+							<button class="mini-btn" type="primary" size="mini"  @click="toDetail(d,index)">下单</button>
 						</view>
 						
 					</view>
@@ -39,17 +39,11 @@
 
 <script>
 	import uniSearchBar from '@/components/uni-search-bar/uni-search-bar.vue';
-	import uniSection from '@/components/uni-section/uni-section.vue';
+	
 	export default {
 		data() {
 			return {
 				searchVal: '',
-				contentText:{
-					contentdown: '上拉加载更多',
-					contentrefresh: '加载中',
-					contentnomore: '没有更多'
-				},
-				reload:false,
 				status: 'more',
 				last_id:'',
 				list:[],
@@ -58,12 +52,12 @@
 					page:1,
 					rows:10
 				},
-				total:0
+				total:0,
+				index:0
 			}
 		},
 		components: {
-			uniSearchBar,
-			uniSection
+			uniSearchBar
 		},
 		onLoad() {
 			this.getList({value:this.search_data.search_key});
@@ -147,10 +141,12 @@
 			changeStatus (status) {
 				this.status = status||'more';
 			},
-			toDetail(res) {
+			toDetail(res,index) {
+				this.index = index;
 				let _this = this;
 				this.$eventHub.$on('product_detail', function(data) {
-					res.product_num = data.product_num;
+					_this.$set(_this.list,_this.index,data);
+					
 					
 					//清除监听，不清除会消耗资源
 					_this.$eventHub.$off('product_detail');

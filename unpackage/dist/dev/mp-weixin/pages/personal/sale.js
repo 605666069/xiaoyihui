@@ -105,7 +105,13 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniSegmentedControl = function uniSegmentedControl() {return __webpack_require__.e(/*! import() | components/uni-segmented-control/uni-segmented-control */ "components/uni-segmented-control/uni-segmented-control").then(__webpack_require__.bind(null, /*! @/components/uni-segmented-control/uni-segmented-control.vue */ 120));};var _default =
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniSegmentedControl = function uniSegmentedControl() {return __webpack_require__.e(/*! import() | components/uni-segmented-control/uni-segmented-control */ "components/uni-segmented-control/uni-segmented-control").then(__webpack_require__.bind(null, /*! @/components/uni-segmented-control/uni-segmented-control.vue */ 127));};var _default =
+
+
+
+
+
+
 
 
 
@@ -178,25 +184,123 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
   data: function data() {
     return {
       items: ['我的订单', '我的客户'],
-      tab: 0 };
+      tab: 0,
+      page: 1,
+      rows: 10,
+      task_list: [],
+      user_list: [],
+      status: "more",
+      total: 0 };
+
+  },
+  beforeMount: function beforeMount() {
+    this.changeTab({
+      currentIndex: this.tab });
 
   },
   components: {
     uniSegmentedControl: uniSegmentedControl },
 
-  onLoad: function onLoad() {
 
-  },
-  onPullDownRefresh: function onPullDownRefresh() {
-  },
-  onReachBottom: function onReachBottom() {
-  },
+
   methods: {
-    changeTab: function changeTab(res) {
-      if (this.tab !== res.currentIndex) {
-        this.tab = res.currentIndex;
-        console.log(this.tab);
+    getTaskList: function getTaskList(isReset) {var _this = this;
+      //数据饱和不再进行调用
+      if (this.status == 'noMore' && !isReset) return;
+      //重置数据
+      if (isReset) {
+        this.resetPage();
+        this.task_list = [];
+
+      } else {
+        this.page++;
+        this.changeStatus('loading');
       }
+      this.$ajax.post('Home/get_task_list', { data: {
+          param: {
+            sales_user_id: this.util.login_data.user_id,
+            page: this.page,
+            rows: this.rows } } }).
+
+      then(function (result) {
+        _this.$set(_this, 'total', result.total);
+        //无数据返回则重置状态
+        if (_this.total != 0 && _this.task_list.length >= _this.total) {
+          _this.status = 'noMore';
+          _this.page--;
+          return;
+        }
+        var new_list = [];
+        new_list = _this.task_list.concat(result.task_list);
+        _this.$set(_this, 'task_list', new_list);
+        _this.changeStatus();
+
+      });
+    },
+    getUserList: function getUserList(isReset) {var _this2 = this;
+      //数据饱和不再进行调用
+      if (this.status == 'noMore' && !isReset) return;
+      //重置数据
+      if (isReset) {
+        this.resetPage();
+        this.user_list = [];
+
+      } else {
+        this.page++;
+        this.changeStatus('loading');
+      }
+      this.$ajax.post('Home/get_user_list', { data: {
+          param: {
+            my_saler_id: this.util.login_data.user_id,
+            page: this.page,
+            rows: this.rows } } }).
+
+      then(function (result) {
+        _this2.$set(_this2, 'total', result.total);
+        //无数据返回则重置状态
+        if (_this2.total != 0 && _this2.user_list.length >= _this2.total) {
+          _this2.status = 'noMore';
+          _this2.page--;
+          return;
+        }
+        var new_list = [];
+        new_list = _this2.user_list.concat(result.user_list);
+        _this2.$set(_this2, 'user_list', new_list);
+        _this2.changeStatus();
+
+      });
+    },
+    changeTab: function changeTab(res) {
+      this.tab = res.currentIndex;
+      this.switchList(true);
+
+    },
+    switchList: function switchList(isReset) {
+      if (this.tab == 0) {
+        this.getTaskList(isReset);
+      }
+      if (this.tab == 1) {
+        this.getUserList(isReset);
+      }
+
+    },
+    resetPage: function resetPage() {
+      this.page = 1;
+    },
+    changeStatus: function changeStatus(status) {
+      this.status = status || 'more';
+    },
+    verifyTask: function verifyTask(data, index) {var _this3 = this;
+      if (data.task_info.task_status != '1') return;
+      this.$ajax.post('Admin/verify_task_info', { data: {
+          param: {
+            task_status: 2,
+            task_tid: data.task_info.task_tid } } }).
+
+      then(function (result) {
+        _this3.$set(_this3.task_list, index, result);
+
+      });
     } } };exports.default = _default;
 
 /***/ }),

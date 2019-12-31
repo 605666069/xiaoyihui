@@ -113,25 +113,50 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 
 
 
+
 {
   components: {
     Client: Client, Sale: Sale },
 
   data: function data() {
     return {
-      title: 'Hello' };
+      page_type: 0 };
 
+  },
+  onShow: function onShow() {
+    this.getUserInfo();
+    this.page_type = this.util.login_data.type;
+  },
+  onHide: function onHide() {
+    this.page_type = 0;
   },
   onLoad: function onLoad() {
 
   },
   onPullDownRefresh: function onPullDownRefresh() {
-    console.log(22222);
   },
   onReachBottom: function onReachBottom() {
-    console.log(22222);
+    this.getChildFn();
   },
-  methods: {} };exports.default = _default;
+  methods: {
+    getChildFn: function getChildFn() {
+      switch (this.page_type) {
+        case '2':
+          this.$refs.sale.switchList(false);
+          break;
+        case '3':
+          this.$refs.client.getTaskList(false);
+          break;
+        default:
+          break;}
+
+
+
+    },
+    getUserInfo: function getUserInfo() {
+      this.util.getLoginData(this.$ajax);
+
+    } } };exports.default = _default;
 
 /***/ }),
 

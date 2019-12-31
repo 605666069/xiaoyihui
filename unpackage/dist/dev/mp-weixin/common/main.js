@@ -14,14 +14,16 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ 9));
 
 
 
-
-
-
-
-
-
-
 var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util.js */ 15));
+
+
+
+
+
+
+
+
+
 
 
 
@@ -38,7 +40,7 @@ var _index = _interopRequireDefault(__webpack_require__(/*! @/router/index.js */
 
 
 var _index2 = _interopRequireDefault(__webpack_require__(/*! @/api/index.js */ 80));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;} // import uLink from '@/components/uLink.vue'
-_vue.default.config.productionTip = true;_App.default.mpType = 'app';var uniCard = function uniCard() {return __webpack_require__.e(/*! import() | components/uni-card/uni-card */ "components/uni-card/uni-card").then(__webpack_require__.bind(null, /*! @/components/uni-card/uni-card.vue */ 92));};var uniLoadMore = function uniLoadMore() {return __webpack_require__.e(/*! import() | components/uni-load-more/uni-load-more */ "components/uni-load-more/uni-load-more").then(__webpack_require__.bind(null, /*! @/components/uni-load-more/uni-load-more.vue */ 99));};var uniNumberBox = function uniNumberBox() {return __webpack_require__.e(/*! import() | components/uni-number-box/uni-number-box */ "components/uni-number-box/uni-number-box").then(__webpack_require__.bind(null, /*! @/components/uni-number-box/uni-number-box.vue */ 106));};var uniPopup = function uniPopup() {return __webpack_require__.e(/*! import() | components/uni-popup/uni-popup */ "components/uni-popup/uni-popup").then(__webpack_require__.bind(null, /*! @/components/uni-popup/uni-popup.vue */ 113));};_vue.default.prototype.util = _util.default;_vue.default.component('uniCard', uniCard);_vue.default.component('uniLoadMore', uniLoadMore);_vue.default.component('uniNumberBox', uniNumberBox); // Vue.component('uLink', uLink)
+_vue.default.config.productionTip = true;_App.default.mpType = 'app';_vue.default.prototype.util = _util.default;var uniCard = function uniCard() {return __webpack_require__.e(/*! import() | components/uni-card/uni-card */ "components/uni-card/uni-card").then(__webpack_require__.bind(null, /*! @/components/uni-card/uni-card.vue */ 92));};var uniLoadMore = function uniLoadMore() {return __webpack_require__.e(/*! import() | components/uni-load-more/uni-load-more */ "components/uni-load-more/uni-load-more").then(__webpack_require__.bind(null, /*! @/components/uni-load-more/uni-load-more.vue */ 99));};var uniNumberBox = function uniNumberBox() {return __webpack_require__.e(/*! import() | components/uni-number-box/uni-number-box */ "components/uni-number-box/uni-number-box").then(__webpack_require__.bind(null, /*! @/components/uni-number-box/uni-number-box.vue */ 106));};var uniPopup = function uniPopup() {return __webpack_require__.e(/*! import() | components/uni-popup/uni-popup */ "components/uni-popup/uni-popup").then(__webpack_require__.bind(null, /*! @/components/uni-popup/uni-popup.vue */ 113));};var uniSection = function uniSection() {return __webpack_require__.e(/*! import() | components/uni-section/uni-section */ "components/uni-section/uni-section").then(__webpack_require__.bind(null, /*! @/components/uni-section/uni-section.vue */ 120));};_vue.default.component('uniCard', uniCard);_vue.default.component('uniLoadMore', uniLoadMore);_vue.default.component('uniNumberBox', uniNumberBox);_vue.default.component('uniSection', uniSection); // Vue.component('uLink', uLink)
 // Vue.component('xflSelect', xflSelect)
 _vue.default.component('uniPopup', uniPopup); //路由拦截
 _vue.default.prototype.$router = _index.default; //网络拦截
@@ -561,8 +563,8 @@ var _default =
 
       uni.showLoading();
       this.$ajax.post('Login/do_login', { data: data }).then(function (res) {
-        uni.setStorageSync('login_data', res);
-        _this2.util.login_data = res;
+        _this2.util.changeLoginData(res);
+        _this2.util.getLoginData(_this2.$ajax);
         _this2.$router.reLaunch('/pages/index/index');
 
       });
@@ -833,37 +835,95 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 var _default =
 {
   data: function data() {
-    return {};
+    return {
+      licence_pic: this.util.login_data.licence_pic ? this.util.config.img_url + this.util.login_data.licence_pic : '',
+      login_data: this.util.login_data,
+      task_list: [],
+      page: 1,
+      rows: 10,
+      status: "more",
+      total: 0 };
 
   },
-  onLoad: function onLoad() {
-
+  created: function created() {
+    this.getTaskList(true);
   },
+  onShow: function onShow() {},
   onPullDownRefresh: function onPullDownRefresh() {
   },
   onReachBottom: function onReachBottom() {
   },
   methods: {
-    upload: function upload() {
+    getTaskList: function getTaskList(isReset) {var _this2 = this;
+      //数据饱和不再进行调用
+      if (this.status == 'noMore' && !isReset) return;
+      //重置数据
+      if (isReset) {
+        this.resetPage();
+        this.task_list = [];
+
+      } else {
+        this.page++;
+        this.changeStatus('loading');
+      }
+      this.$ajax.post('Home/get_task_list', { data: {
+          param: {
+            buyer_user_id: this.util.login_data.user_id } } }).
+
+      then(function (result) {
+        _this2.$set(_this2, 'total', result.total);
+        //无数据返回则重置状态
+        if (_this2.total != 0 && _this2.task_list.length >= _this2.total) {
+          _this2.status = 'noMore';
+          _this2.page--;
+          return;
+        }
+        var new_list = [];
+        new_list = _this2.task_list.concat(result.task_list);
+        _this2.$set(_this2, 'task_list', new_list);
+        _this2.changeStatus();
+      });
+    },
+    resetPage: function resetPage() {
+      this.page = 1;
+    },
+    changeStatus: function changeStatus(status) {
+      this.status = status || 'more';
+    },
+
+    upload: function upload() {var _this3 = this;
       uni.chooseImage({
         success: function success(chooseImageRes) {
           var tempFilePaths = chooseImageRes.tempFilePaths;
-
+          var _this = _this3;
           uni.uploadFile({
-            url: 'http://120.27.27.185:12341/ApiYouzan/upload/upload_file',
+            url: _this.util.config.api_url + '/upload/upload_file',
             filePath: tempFilePaths[0],
             name: 'file',
-            formData: {},
-
+            formData: {
+              token_access: _this.util.login_data.token_access },
 
             success: function success(uploadFileRes) {
-              console.log(uploadFileRes);
-              // console.log(uploadFileRes.data);
+              var licence_pic = '';
+              try {
+                licence_pic = JSON.parse(uploadFileRes.data).data.file.save_url;
+              } catch (e) {
+                licence_pic = '';
+              }
+
+              _this.$ajax.post('Home/edit_user_info', { data: {
+                  param: {
+                    user_id: _this.util.login_data.user_id,
+                    licence_pic: licence_pic } } }).
+
+              then(function (res) {
+                _this.licence_pic = _this.util.config.img_url + res.licence_pic;
+                _this.$forceUpdate();
+              });
+
             } });
 
         } });
@@ -1007,25 +1067,50 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 
 
 
+
 {
   components: {
     Client: Client, Sale: Sale },
 
   data: function data() {
     return {
-      title: 'Hello' };
+      page_type: 0 };
 
+  },
+  onShow: function onShow() {
+    this.getUserInfo();
+    this.page_type = this.util.login_data.type;
+  },
+  onHide: function onHide() {
+    this.page_type = 0;
   },
   onLoad: function onLoad() {
 
   },
   onPullDownRefresh: function onPullDownRefresh() {
-    console.log(22222);
   },
   onReachBottom: function onReachBottom() {
-    console.log(22222);
+    this.getChildFn();
   },
-  methods: {} };exports.default = _default;
+  methods: {
+    getChildFn: function getChildFn() {
+      switch (this.page_type) {
+        case '2':
+          this.$refs.sale.switchList(false);
+          break;
+        case '3':
+          this.$refs.client.getTaskList(false);
+          break;
+        default:
+          break;}
+
+
+
+    },
+    getUserInfo: function getUserInfo() {
+      this.util.getLoginData(this.$ajax);
+
+    } } };exports.default = _default;
 
 /***/ }),
 /* 45 */
@@ -1129,7 +1214,13 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniSegmentedControl = function uniSegmentedControl() {return __webpack_require__.e(/*! import() | components/uni-segmented-control/uni-segmented-control */ "components/uni-segmented-control/uni-segmented-control").then(__webpack_require__.bind(null, /*! @/components/uni-segmented-control/uni-segmented-control.vue */ 120));};var _default =
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniSegmentedControl = function uniSegmentedControl() {return __webpack_require__.e(/*! import() | components/uni-segmented-control/uni-segmented-control */ "components/uni-segmented-control/uni-segmented-control").then(__webpack_require__.bind(null, /*! @/components/uni-segmented-control/uni-segmented-control.vue */ 127));};var _default =
+
+
+
+
+
+
 
 
 
@@ -1202,25 +1293,123 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
   data: function data() {
     return {
       items: ['我的订单', '我的客户'],
-      tab: 0 };
+      tab: 0,
+      page: 1,
+      rows: 10,
+      task_list: [],
+      user_list: [],
+      status: "more",
+      total: 0 };
+
+  },
+  beforeMount: function beforeMount() {
+    this.changeTab({
+      currentIndex: this.tab });
 
   },
   components: {
     uniSegmentedControl: uniSegmentedControl },
 
-  onLoad: function onLoad() {
 
-  },
-  onPullDownRefresh: function onPullDownRefresh() {
-  },
-  onReachBottom: function onReachBottom() {
-  },
+
   methods: {
-    changeTab: function changeTab(res) {
-      if (this.tab !== res.currentIndex) {
-        this.tab = res.currentIndex;
-        console.log(this.tab);
+    getTaskList: function getTaskList(isReset) {var _this = this;
+      //数据饱和不再进行调用
+      if (this.status == 'noMore' && !isReset) return;
+      //重置数据
+      if (isReset) {
+        this.resetPage();
+        this.task_list = [];
+
+      } else {
+        this.page++;
+        this.changeStatus('loading');
       }
+      this.$ajax.post('Home/get_task_list', { data: {
+          param: {
+            sales_user_id: this.util.login_data.user_id,
+            page: this.page,
+            rows: this.rows } } }).
+
+      then(function (result) {
+        _this.$set(_this, 'total', result.total);
+        //无数据返回则重置状态
+        if (_this.total != 0 && _this.task_list.length >= _this.total) {
+          _this.status = 'noMore';
+          _this.page--;
+          return;
+        }
+        var new_list = [];
+        new_list = _this.task_list.concat(result.task_list);
+        _this.$set(_this, 'task_list', new_list);
+        _this.changeStatus();
+
+      });
+    },
+    getUserList: function getUserList(isReset) {var _this2 = this;
+      //数据饱和不再进行调用
+      if (this.status == 'noMore' && !isReset) return;
+      //重置数据
+      if (isReset) {
+        this.resetPage();
+        this.user_list = [];
+
+      } else {
+        this.page++;
+        this.changeStatus('loading');
+      }
+      this.$ajax.post('Home/get_user_list', { data: {
+          param: {
+            my_saler_id: this.util.login_data.user_id,
+            page: this.page,
+            rows: this.rows } } }).
+
+      then(function (result) {
+        _this2.$set(_this2, 'total', result.total);
+        //无数据返回则重置状态
+        if (_this2.total != 0 && _this2.user_list.length >= _this2.total) {
+          _this2.status = 'noMore';
+          _this2.page--;
+          return;
+        }
+        var new_list = [];
+        new_list = _this2.user_list.concat(result.user_list);
+        _this2.$set(_this2, 'user_list', new_list);
+        _this2.changeStatus();
+
+      });
+    },
+    changeTab: function changeTab(res) {
+      this.tab = res.currentIndex;
+      this.switchList(true);
+
+    },
+    switchList: function switchList(isReset) {
+      if (this.tab == 0) {
+        this.getTaskList(isReset);
+      }
+      if (this.tab == 1) {
+        this.getUserList(isReset);
+      }
+
+    },
+    resetPage: function resetPage() {
+      this.page = 1;
+    },
+    changeStatus: function changeStatus(status) {
+      this.status = status || 'more';
+    },
+    verifyTask: function verifyTask(data, index) {var _this3 = this;
+      if (data.task_info.task_status != '1') return;
+      this.$ajax.post('Admin/verify_task_info', { data: {
+          param: {
+            task_status: 2,
+            task_tid: data.task_info.task_tid } } }).
+
+      then(function (result) {
+        _this3.$set(_this3.task_list, index, result);
+
+      });
     } } };exports.default = _default;
 
 /***/ }),
@@ -1400,6 +1589,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 var _default =
 {
   data: function data() {
@@ -1409,7 +1599,8 @@ var _default =
 
 
       total_num: 0,
-      task_num: 0 };
+      task_num: 0,
+      user_type: this.util.login_data.type || 0 };
 
   },
   onShow: function onShow() {
@@ -1439,7 +1630,11 @@ var _default =
       });
     },
     submit: function submit() {var _this2 = this;
-
+      if (!this.total_num) {
+        this.util.msg("当前产品无货");
+        return;
+      }
+      var num = this.task_num >= this.total_num ? this.total_num : this.task_num;
       uni.showLoading();
       this.$ajax.post('Home/add_task_info', { data: {
           param: {
@@ -1448,10 +1643,11 @@ var _default =
             buyer_user_id: this.util.login_data.user_id } } }).
 
       then(function (result) {
-        _this2.util.msg('产品下单成功');
+
         var product_detail = result.product_info;
         _this2.$eventHub.$emit('product_detail', product_detail);
         uni.navigateBack();
+        _this2.util.msg('产品下单成功');
       });
 
     } } };exports.default = _default;
@@ -1584,7 +1780,7 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniSearchBar = function uniSearchBar() {return __webpack_require__.e(/*! import() | components/uni-search-bar/uni-search-bar */ "components/uni-search-bar/uni-search-bar").then(__webpack_require__.bind(null, /*! @/components/uni-search-bar/uni-search-bar.vue */ 127));};var uniSection = function uniSection() {return __webpack_require__.e(/*! import() | components/uni-section/uni-section */ "components/uni-section/uni-section").then(__webpack_require__.bind(null, /*! @/components/uni-section/uni-section.vue */ 134));};var _default =
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniSearchBar = function uniSearchBar() {return __webpack_require__.e(/*! import() | components/uni-search-bar/uni-search-bar */ "components/uni-search-bar/uni-search-bar").then(__webpack_require__.bind(null, /*! @/components/uni-search-bar/uni-search-bar.vue */ 134));};var _default =
 
 
 
@@ -1630,12 +1826,6 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       searchVal: '',
-      contentText: {
-        contentdown: '上拉加载更多',
-        contentrefresh: '加载中',
-        contentnomore: '没有更多' },
-
-      reload: false,
       status: 'more',
       last_id: '',
       list: [],
@@ -1644,12 +1834,12 @@ __webpack_require__.r(__webpack_exports__);
         page: 1,
         rows: 10 },
 
-      total: 0 };
+      total: 0,
+      index: 0 };
 
   },
   components: {
-    uniSearchBar: uniSearchBar,
-    uniSection: uniSection },
+    uniSearchBar: uniSearchBar },
 
   onLoad: function onLoad() {
     this.getList({ value: this.search_data.search_key });
@@ -1733,10 +1923,12 @@ __webpack_require__.r(__webpack_exports__);
     changeStatus: function changeStatus(status) {
       this.status = status || 'more';
     },
-    toDetail: function toDetail(res) {
+    toDetail: function toDetail(res, index) {
+      this.index = index;
       var _this = this;
       this.$eventHub.$on('product_detail', function (data) {
-        res.product_num = data.product_num;
+        _this.$set(_this.list, _this.index, data);
+
 
         //清除监听，不清除会消耗资源
         _this.$eventHub.$off('product_detail');
@@ -1876,7 +2068,8 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; //
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; //
+//
 //
 //
 //
@@ -1940,23 +2133,25 @@ var _default =
         trade_points: 30,
         num: 0 },
 
+      trade_id: 0,
       exc_num: 0,
-      my_trade_points: 130 };
+      user_points: this.util.login_data.points || 0,
+      shop_id: 0,
+      shop_detail: {
+        trade_pic: '' },
+
+      user_type: this.util.login_data.type || 0 };
+
 
   },
   onLoad: function onLoad(data) {
 
-    // let option = {}
-    // const payload = data.detailDate || data.payload;
-    // try {
-    // 	option = JSON.parse(decodeURIComponent(payload));
-    // } catch (error) {
-    // 	option = JSON.parse(payload);
-    // }
-    // console.log(option)
   },
 
+
   onShow: function onShow(data) {
+
+    this.trade_id = this.$router.route.query.shop_detail.trade_id || {};
     this.getDetail();
   },
   onPullDownRefresh: function onPullDownRefresh() {
@@ -1964,29 +2159,54 @@ var _default =
   onReachBottom: function onReachBottom() {
   },
   methods: {
-    getDetail: function getDetail() {
+    getDetail: function getDetail() {var _this = this;
+      this.$ajax.post('home/get_trade_list', { data: {
+          param: {
+            trade_id: this.trade_id } } }).
 
-      this.max = Math.floor(this.my_trade_points / this.detail_data.trade_points);
+      then(function (result) {
+        _this.shop_detail = result.trade_list[0] || {};
+        _this.getMax();
+      });
+    },
+    getMax: function getMax() {
+      //用户可兑换最大值
+      var user_max = Math.floor(this.user_points / this.shop_detail.trade_points);
+
+      this.max = user_max >= this.shop_detail.trade_num ? this.shop_detail.trade_num : user_max;
 
     },
     allNum: function allNum() {
-      console.log('allnum :', this.exc_num);
       this.exc_num = this.max;
     },
     changeNum: function changeNum(num) {
       this.exc_num = num;
     },
-    submit: function submit() {
-      console.log(this.exc_num);
-      // uni.showLoading({
-      //     title: '加载中',
-      // 	mask:true
-      // });
-      // setTimeout(()=>{
-      // 	uni.hideLoading();
-      // 	uni.navigateBack();
-      // },1000)
+    submit: function submit() {var _this2 = this;
+      if (!this.exc_num) {
+        this.util.msg('请输入数量后点击兑换');
+        return;
+      }
+      uni.showLoading({
+        mask: true });
+
+      this.$ajax.post('Home/add_exc_info', { data: {
+          param: {
+            exc_user_id: this.util.login_data.user_id,
+            exc_num: this.exc_num,
+            trade_id: this.shop_detail.trade_id } } }).
+
+      then(function (result) {
+        _this2.util.getLoginData(_this2.$ajax);
+
+        var shop_detail = result.trade_info;
+        _this2.$eventHub.$emit('shop_detail', shop_detail);
+        uni.navigateBack();
+        _this2.util.msg('积分兑换成功');
+      });
+
     } } };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ }),
 /* 71 */
@@ -2148,11 +2368,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 var _default =
 {
   data: function data() {
-    return {};
+    return {
+      shop_list: [],
+      index: 0,
+      status: 'more',
+      search_data: {
+        // - trade_status 商品状态：1上架，2下架
+        trade_status: 1,
+        page: 1,
+        rows: 10 },
 
+      total: 0 };
+
+  },
+
+  onShow: function onShow() {
+    this.getShopList(true);
   },
   onLoad: function onLoad() {
 
@@ -2160,14 +2395,74 @@ var _default =
   onPullDownRefresh: function onPullDownRefresh() {
   },
   onReachBottom: function onReachBottom() {
+    this.getShopList();
   },
   methods: {
-    toDetail: function toDetail(res) {
-      var detail = {
-        id: 1 };
+    getShopList: function getShopList(isReset) {var _this2 = this;
+      //数据饱和不再进行调用
+      if (this.status == 'noMore' && !isReset) return;
+      //重置数据
+      if (isReset) {
+        this.resetPage();
+        this.shop_list = [];
 
-      uni.navigateTo({
-        url: '/pages/shop-detail/index?detailDate=' + encodeURIComponent(JSON.stringify(detail)) });
+      } else {
+        this.search_data.page++;
+        this.changeStatus('loading');
+      }
+
+
+      var data = {
+        param: this.search_data };
+
+      this.$ajax.post('Home/get_trade_list', { data: data }).then(function (result) {
+
+        _this2.$set(_this2, 'total', result.total);
+        //无数据返回则重置状态
+        if (_this2.total != 0 && _this2.shop_list.length >= _this2.total) {
+          _this2.status = 'noMore';
+          _this2.search_data.page--;
+          return;
+        }
+        var new_list = [];
+        new_list = _this2.shop_list.concat(result.trade_list);
+        _this2.$set(_this2, 'shop_list', new_list);
+        _this2.changeStatus();
+
+      });
+
+
+
+
+    },
+    resetPage: function resetPage() {
+      this.search_data.page = 1;
+      //重新搜索返回页面顶部
+      uni.pageScrollTo({
+        scrollTop: 0,
+        duration: 0 });
+
+      this.changeStatus();
+
+    },
+    changeStatus: function changeStatus(status) {
+      this.status = status || 'more';
+    },
+    toDetail: function toDetail(res, index) {
+      this.index = index;
+      var _this = this;
+      this.$eventHub.$on('shop_detail', function (data) {
+        _this.$set(_this.shop_list, this.index, data);
+
+
+        //清除监听，不清除会消耗资源
+        _this.$eventHub.$off('shop_detail');
+      });
+
+      this.$router.push("/pages/shop-detail/index", {
+        shop_detail: res });
+
+
 
     } } };exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))

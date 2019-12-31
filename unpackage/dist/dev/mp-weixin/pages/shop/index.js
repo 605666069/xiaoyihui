@@ -138,11 +138,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 var _default =
 {
   data: function data() {
-    return {};
+    return {
+      shop_list: [],
+      index: 0,
+      status: 'more',
+      search_data: {
+        // - trade_status 商品状态：1上架，2下架
+        trade_status: 1,
+        page: 1,
+        rows: 10 },
 
+      total: 0 };
+
+  },
+
+  onShow: function onShow() {
+    this.getShopList(true);
   },
   onLoad: function onLoad() {
 
@@ -150,14 +165,74 @@ var _default =
   onPullDownRefresh: function onPullDownRefresh() {
   },
   onReachBottom: function onReachBottom() {
+    this.getShopList();
   },
   methods: {
-    toDetail: function toDetail(res) {
-      var detail = {
-        id: 1 };
+    getShopList: function getShopList(isReset) {var _this2 = this;
+      //数据饱和不再进行调用
+      if (this.status == 'noMore' && !isReset) return;
+      //重置数据
+      if (isReset) {
+        this.resetPage();
+        this.shop_list = [];
 
-      uni.navigateTo({
-        url: '/pages/shop-detail/index?detailDate=' + encodeURIComponent(JSON.stringify(detail)) });
+      } else {
+        this.search_data.page++;
+        this.changeStatus('loading');
+      }
+
+
+      var data = {
+        param: this.search_data };
+
+      this.$ajax.post('Home/get_trade_list', { data: data }).then(function (result) {
+
+        _this2.$set(_this2, 'total', result.total);
+        //无数据返回则重置状态
+        if (_this2.total != 0 && _this2.shop_list.length >= _this2.total) {
+          _this2.status = 'noMore';
+          _this2.search_data.page--;
+          return;
+        }
+        var new_list = [];
+        new_list = _this2.shop_list.concat(result.trade_list);
+        _this2.$set(_this2, 'shop_list', new_list);
+        _this2.changeStatus();
+
+      });
+
+
+
+
+    },
+    resetPage: function resetPage() {
+      this.search_data.page = 1;
+      //重新搜索返回页面顶部
+      uni.pageScrollTo({
+        scrollTop: 0,
+        duration: 0 });
+
+      this.changeStatus();
+
+    },
+    changeStatus: function changeStatus(status) {
+      this.status = status || 'more';
+    },
+    toDetail: function toDetail(res, index) {
+      this.index = index;
+      var _this = this;
+      this.$eventHub.$on('shop_detail', function (data) {
+        _this.$set(_this.shop_list, this.index, data);
+
+
+        //清除监听，不清除会消耗资源
+        _this.$eventHub.$off('shop_detail');
+      });
+
+      this.$router.push("/pages/shop-detail/index", {
+        shop_detail: res });
+
+
 
     } } };exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))

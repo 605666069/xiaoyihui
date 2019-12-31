@@ -1,1 +1,1 @@
-<view class="content"><client vue-id="1" bind:__l="__l"></client></view>
+<view class="content"><block wx:if="{{page_type=='3'}}"><client class="vue-ref" vue-id="1" data-ref="client" bind:__l="__l"></client></block><block wx:if="{{page_type=='2'}}"><sale class="vue-ref" vue-id="2" data-ref="sale" bind:__l="__l"></sale></block></view>

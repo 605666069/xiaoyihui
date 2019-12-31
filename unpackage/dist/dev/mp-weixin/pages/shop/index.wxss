@@ -11,6 +11,7 @@
 	padding: 20rpx;
 	box-sizing: border-box;
 	float: left;
+	margin-right: 10rpx;
 }
 .img-wrap.data-v-16910a89 {
 	border: 1px solid #CDCDCD;

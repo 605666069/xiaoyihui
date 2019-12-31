@@ -105,7 +105,8 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; //
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; //
+//
 //
 //
 //
@@ -169,23 +170,25 @@ var _default =
         trade_points: 30,
         num: 0 },
 
+      trade_id: 0,
       exc_num: 0,
-      my_trade_points: 130 };
+      user_points: this.util.login_data.points || 0,
+      shop_id: 0,
+      shop_detail: {
+        trade_pic: '' },
+
+      user_type: this.util.login_data.type || 0 };
+
 
   },
   onLoad: function onLoad(data) {
 
-    // let option = {}
-    // const payload = data.detailDate || data.payload;
-    // try {
-    // 	option = JSON.parse(decodeURIComponent(payload));
-    // } catch (error) {
-    // 	option = JSON.parse(payload);
-    // }
-    // console.log(option)
   },
 
+
   onShow: function onShow(data) {
+
+    this.trade_id = this.$router.route.query.shop_detail.trade_id || {};
     this.getDetail();
   },
   onPullDownRefresh: function onPullDownRefresh() {
@@ -193,29 +196,54 @@ var _default =
   onReachBottom: function onReachBottom() {
   },
   methods: {
-    getDetail: function getDetail() {
+    getDetail: function getDetail() {var _this = this;
+      this.$ajax.post('home/get_trade_list', { data: {
+          param: {
+            trade_id: this.trade_id } } }).
 
-      this.max = Math.floor(this.my_trade_points / this.detail_data.trade_points);
+      then(function (result) {
+        _this.shop_detail = result.trade_list[0] || {};
+        _this.getMax();
+      });
+    },
+    getMax: function getMax() {
+      //用户可兑换最大值
+      var user_max = Math.floor(this.user_points / this.shop_detail.trade_points);
+
+      this.max = user_max >= this.shop_detail.trade_num ? this.shop_detail.trade_num : user_max;
 
     },
     allNum: function allNum() {
-      console.log('allnum :', this.exc_num);
       this.exc_num = this.max;
     },
     changeNum: function changeNum(num) {
       this.exc_num = num;
     },
-    submit: function submit() {
-      console.log(this.exc_num);
-      // uni.showLoading({
-      //     title: '加载中',
-      // 	mask:true
-      // });
-      // setTimeout(()=>{
-      // 	uni.hideLoading();
-      // 	uni.navigateBack();
-      // },1000)
+    submit: function submit() {var _this2 = this;
+      if (!this.exc_num) {
+        this.util.msg('请输入数量后点击兑换');
+        return;
+      }
+      uni.showLoading({
+        mask: true });
+
+      this.$ajax.post('Home/add_exc_info', { data: {
+          param: {
+            exc_user_id: this.util.login_data.user_id,
+            exc_num: this.exc_num,
+            trade_id: this.shop_detail.trade_id } } }).
+
+      then(function (result) {
+        _this2.util.getLoginData(_this2.$ajax);
+
+        var shop_detail = result.trade_info;
+        _this2.$eventHub.$emit('shop_detail', shop_detail);
+        uni.navigateBack();
+        _this2.util.msg('积分兑换成功');
+      });
+
     } } };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ }),
 

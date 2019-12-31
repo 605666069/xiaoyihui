@@ -1,7 +1,6 @@
 {
   "navigationBarTitleText": "产品中心",
   "usingComponents": {
-    "uni-search-bar": "/components/uni-search-bar/uni-search-bar",
-    "uni-section": "/components/uni-section/uni-section"
+    "uni-search-bar": "/components/uni-search-bar/uni-search-bar"
   }
 }

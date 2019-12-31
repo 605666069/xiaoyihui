@@ -4,10 +4,10 @@
 			<view class="top uni-flex">
 				<view class="left">
 					<view class="name">
-						刘德华
+						{{login_data.realname||'无'}}
 					</view>
 					<view class="address">
-						安徽医科大学附属医院
+						{{login_data.hospital_name||'无'}}
 					</view>
 				</view>
 				<view class="left">
@@ -15,14 +15,14 @@
 						我的积分
 					</view>
 					<view class="top-text yellow center">
-						10000
+						{{login_data.points||0}}
 					</view>
 				</view>
 			</view>
 			<view class="main">
-				<image src="../../static/60x60.png" mode="" @click="upload()" class="main-img"></image>
+				<image :src="licence_pic" mode="" @click="upload()" class="main-img"></image>
 				<view class="btn-wrap">
-					<button type="primary" @click="upload()" size="mini" class="main-btn">上传资质</button>
+					<button type="primary" @click="upload()" size="mini" class="main-btn">{{licence_pic?'重新上传':'上传资质'}} </button>
 					<view class="min-text">
 						*请上传JPG,PNG格式图片
 					</view>
@@ -35,25 +35,22 @@
 					我的订单
 				</view>
 				<view class="list">
-					<view class="">
+					<view class="" v-for="(d,index) in task_list" :key="d.task_info.task_tid">
 						<view class="uni-flex uni-row  btn-list ">
 							<view class="uni-flex icon my-center">
-								<image src="../../static/uni.png" mode="" class="iamge"></image>
+								<image :src="d.product_info.product_pic" mode="" class="iamge"></image>
 							</view>
 							<view class="uni-flex text">
 								<view class="flex-1">
 									<view class="title uni-flex ">
-										<text  class="title-left text-overflow">阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片阿司匹林肠溶片</text>
+										<text  class="title-left text-overflow">{{d.product_info.product_name}}</text>
 									</view>
 									<view class="uni-flex">
-										<text  class="text-line text-overflow">【规格型号】 100mg*30s</text>
+										<view  class="text-line" >
+											<rich-text :nodes="d.product_info.product_detail"></rich-text>
+										</view>
 									</view>
-									<view class="uni-flex">
-										<text  class="text-line text-overflow"> 通用名称：阿司匹林肠溶片 </text>
-									</view>
-									<view class="uni-flex">
-										<text  class="text-line text-overflow text-bottom"> 商品名称：阿司匹林肠溶片</text>
-									</view>
+									
 								</view>
 								<view class="uni-flex">
 									<view class="text-num ">
@@ -61,7 +58,7 @@
 											下单量
 										</view>
 										<view class="yellow">
-											1000
+											{{d.task_info.task_num}}
 										</view>
 									</view>
 									
@@ -71,6 +68,7 @@
 						</view>
 						<view class="my-divider"></view>
 					</view>
+					<uni-load-more :status="status"  :icon-size="12" v-if="task_list.length >= 10"/>
 				</view>
 			</view>
 		</uni-card>
@@ -81,31 +79,91 @@
 	export default {
 		data() {
 			return {
+				licence_pic: this.util.login_data.licence_pic?this.util.config.img_url + this.util.login_data.licence_pic:'',
+				login_data:this.util.login_data,
+				task_list:[],
+				page:1,
+				rows:10,
+				status:"more",
+				total:0
 			}
 		},
-		onLoad() {
-	
+		created() {
+			this.getTaskList(true)
 		},
+		onShow() {},
 		onPullDownRefresh() {
 		},
 		onReachBottom() {
 		},
 		methods: {
+			getTaskList(isReset) {
+				//数据饱和不再进行调用
+				if(this.status == 'noMore'&&!isReset) return;
+				//重置数据
+				if(isReset) {
+					this.resetPage();
+					this.task_list = [];
+					 
+				} else {
+					this.page++;
+					this.changeStatus('loading');
+				}
+				this.$ajax.post('Home/get_task_list',{data: {
+					param:{
+						buyer_user_id:this.util.login_data.user_id
+					}
+				}}).then((result)=>{
+					this.$set(this,'total',result.total);
+					//无数据返回则重置状态
+					if (this.total != 0 && this.task_list.length >= this.total ) {
+						this.status = 'noMore';
+						this.page -- ;
+						return;
+					}
+					let new_list = [];
+					new_list = this.task_list.concat(result.task_list);
+					this.$set(this,'task_list',new_list);
+					this.changeStatus();
+				})
+			},
+			resetPage() {
+				this.page = 1;
+			},
+			changeStatus (status) {
+				this.status = status||'more';
+			},
+			
 			upload() {
 				uni.chooseImage({
 				    success: (chooseImageRes) => {
 				        const tempFilePaths = chooseImageRes.tempFilePaths;
-						
+						let _this = this;
 				        uni.uploadFile({
-				            url: 'http://120.27.27.185:12341/ApiYouzan/upload/upload_file', 
+				            url:  _this.util.config.api_url + '/upload/upload_file', 
 				            filePath: tempFilePaths[0],
 				            name: 'file',
 				            formData: {
-				                
+				                token_access:_this.util.login_data.token_access
 				            },
 				            success: (uploadFileRes) => {
-								console.log(uploadFileRes);
-				                // console.log(uploadFileRes.data);
+								let licence_pic = '';
+								try{
+									licence_pic = JSON.parse(uploadFileRes.data).data.file.save_url;
+								}catch(e){
+									licence_pic = ''
+								}
+								
+								_this.$ajax.post('Home/edit_user_info',{data: {
+									param:{
+										user_id:_this.util.login_data.user_id,
+										licence_pic:licence_pic
+									}
+								}}).then((res)=>{
+									_this.licence_pic = _this.util.config.img_url + res.licence_pic;
+									_this.$forceUpdate();
+								})
+								 
 				            }
 				        });
 				    }

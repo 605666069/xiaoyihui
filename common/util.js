@@ -1,3 +1,38 @@
+let util = {
+	config:{
+		api_url:'http://120.27.27.185/ApiYouzan/',
+		img_url:'http://120.27.27.185/'
+	},
+	msg:function  (title) {
+		uni.showToast({
+		    title: title,
+			icon:'none',
+		    duration: 2000,
+			position:'bottom'
+		});
+	},
+	login_data:uni.getStorageSync('login_data') ? uni.getStorageSync('login_data') : {},
+	changeLoginData:function (res) {
+		uni.setStorageSync('login_data',res);
+		util.login_data = res;
+	},
+	getLoginData:function ($ajax,callback) {
+		let data = {
+			param:{
+				user_id:util.login_data.user_id
+			}
+		};
+		$ajax.post('Home/get_user_info',{data: data}).then((result)=>{
+			util.changeLoginData(result);
+			callback&&callback(result)
+		});
+		
+	}
+	
+	
+}
+
+
 function formatTime(time) {
 	if (typeof time !== 'number' || time < 0) {
 		return time
@@ -66,33 +101,36 @@ var dateUtils = {
 	}
 };
 
-function msg (title) {
-	uni.showToast({
-	    title: title,
-		icon:'none',
-	    duration: 2000,
-		position:'bottom'
+
+
+
+
+var login_data = uni.getStorageSync('login_data') ? uni.getStorageSync('login_data') : {};
+
+function changeLoginData (res) {
+	uni.setStorageSync('login_data',res);
+	console.log(_this)
+	this.login_data = res;
+}
+
+function getLoginData ($ajax) {
+	let data = {
+		param:{
+			user_id:this.login_data.user_id
+		}
+	};
+	$ajax.post('Home/get_user_info',{data: data}).then((result)=>{
+		changeLoginData(result);
 	});
+	
 }
-
-
-function getCookie (name) {
-	var arr;
-	var reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-	if (arr = document.cookie.match(reg))
-		return unescape(arr[2]);
-	else
-		return null;
-};
-
-let login_data = uni.getStorageSync('login_data') ? uni.getStorageSync('login_data') : {};
-
-
-module.exports = {
-	formatTime: formatTime,
-	formatLocation: formatLocation,
-	dateUtils: dateUtils,
-	msg:msg,
-	getCookie:getCookie,
-	login_data:login_data,
-}
+export default util;
+// module.exports = {
+// 	formatTime: formatTime,
+// 	formatLocation: formatLocation,
+// 	dateUtils: dateUtils,
+// 	msg:msg,
+// 	login_data:login_data,
+// 	changeLoginData:changeLoginData,
+// 	getLoginData:getLoginData
+// }

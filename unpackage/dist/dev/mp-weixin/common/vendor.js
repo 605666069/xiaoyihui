@@ -1643,7 +1643,42 @@ function normalizeComponent (
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {function formatTime(time) {
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var util = {
+  config: {
+    api_url: 'http://120.27.27.185/ApiYouzan/',
+    img_url: 'http://120.27.27.185/' },
+
+  msg: function msg(title) {
+    uni.showToast({
+      title: title,
+      icon: 'none',
+      duration: 2000,
+      position: 'bottom' });
+
+  },
+  login_data: uni.getStorageSync('login_data') ? uni.getStorageSync('login_data') : {},
+  changeLoginData: function changeLoginData(res) {
+    uni.setStorageSync('login_data', res);
+    util.login_data = res;
+  },
+  getLoginData: function getLoginData($ajax, callback) {
+    var data = {
+      param: {
+        user_id: util.login_data.user_id } };
+
+
+    $ajax.post('Home/get_user_info', { data: data }).then(function (result) {
+      util.changeLoginData(result);
+      callback && callback(result);
+    });
+
+  } };
+
+
+
+
+
+function formatTime(time) {
   if (typeof time !== 'number' || time < 0) {
     return time;
   }
@@ -1711,35 +1746,40 @@ var dateUtils = {
   } };
 
 
-function msg(title) {
-  uni.showToast({
-    title: title,
-    icon: 'none',
-    duration: 2000,
-    position: 'bottom' });
-
-}
 
 
-function getCookie(name) {
-  var arr;
-  var reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-  if (arr = document.cookie.match(reg))
-  return unescape(arr[2]);else
 
-  return null;
-};
 
 var login_data = uni.getStorageSync('login_data') ? uni.getStorageSync('login_data') : {};
 
+function changeLoginData(res) {
+  uni.setStorageSync('login_data', res);
+  console.log(_this);
+  this.login_data = res;
+}
 
-module.exports = {
-  formatTime: formatTime,
-  formatLocation: formatLocation,
-  dateUtils: dateUtils,
-  msg: msg,
-  getCookie: getCookie,
-  login_data: login_data };
+function getLoginData($ajax) {
+  var data = {
+    param: {
+      user_id: this.login_data.user_id } };
+
+
+  $ajax.post('Home/get_user_info', { data: data }).then(function (result) {
+    changeLoginData(result);
+  });
+
+}var _default =
+util;
+// module.exports = {
+// 	formatTime: formatTime,
+// 	formatLocation: formatLocation,
+// 	dateUtils: dateUtils,
+// 	msg:msg,
+// 	login_data:login_data,
+// 	changeLoginData:changeLoginData,
+// 	getLoginData:getLoginData
+// }
+exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ }),
@@ -1858,14 +1898,14 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
 var _uni_router = _interopRequireWildcard(__webpack_require__(/*! @/common/uni_router.js */ 17));
-var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util.js */ 15));function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) {var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {};if (desc.get || desc.set) {Object.defineProperty(newObj, key, desc);} else {newObj[key] = obj[key];}}}}newObj.default = obj;return newObj;}}function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
-
+var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util.js */ 15));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) {var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {};if (desc.get || desc.set) {Object.defineProperty(newObj, key, desc);} else {newObj[key] = obj[key];}}}}newObj.default = obj;return newObj;}}
 _uni_router.default.beforeEach = function (to, next) {// 注册全局前置守卫
 
   console.log('全局前置守卫', to);
   if ((JSON.stringify(_util.default.login_data) == "{}" || !_util.default.login_data) && !to.path.includes('/mylogin/index')) {
+    console.log(_util.default.login_data);
     next(function (vm) {
       vm.push('/pages/mylogin/index');
     });
@@ -1874,8 +1914,7 @@ _uni_router.default.beforeEach = function (to, next) {// 注册全局前置守�
   next();
 };
 
-_uni_router.default.afterEach = function (to) {// 注册一个全局后置守卫
-  console.log('全局后置守卫', to);
+_uni_router.default.afterEach = function (to) {
 };var _default =
 
 _uni_router.default;exports.default = _default;
@@ -8967,14 +9006,13 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));
-var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util.js */ 15));
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util.js */ 15));
 var _request = _interopRequireDefault(__webpack_require__(/*! @/common/request.js */ 81));
 var _index = _interopRequireDefault(__webpack_require__(/*! @/router/index.js */ 16));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 
 // 全局配置
 _request.default.setConfig({
-  baseUrl: 'http://120.27.27.185:12341/ApiYouzan/', // 此为测试地址，需加入到域名白名单，或者更改为您自己的线上地址即可
+  baseUrl: _util.default.config.api_url, // 此为测试地址，需加入到域名白名单，或者更改为您自己的线上地址即可
   dataType: 'json', // 可删除，默认为json
   responseType: 'text', // 可删除，默认为text
   // 设置请求头，支持所有请求头设置，也可不设置，去掉header就行
@@ -8986,7 +9024,7 @@ _request.default.setConfig({
 
 // 设置请求拦截器
 _request.default.interceptors.request(function (config) {
-  if (config.data) config.data.param.token_access = uni.getStorageSync('login_data') && uni.getStorageSync('login_data').token_access;
+  if (config.data && config.data.param) config.data.param.token_access = _util.default.login_data && _util.default.login_data.token_access;
   // 配置参数和全局配置相同，此优先级最高，会覆盖在其他地方的相同配置参数
 
   // 追加请求头，推荐

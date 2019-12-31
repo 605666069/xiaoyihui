@@ -182,37 +182,95 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 var _default =
 {
   data: function data() {
-    return {};
+    return {
+      licence_pic: this.util.login_data.licence_pic ? this.util.config.img_url + this.util.login_data.licence_pic : '',
+      login_data: this.util.login_data,
+      task_list: [],
+      page: 1,
+      rows: 10,
+      status: "more",
+      total: 0 };
 
   },
-  onLoad: function onLoad() {
-
+  created: function created() {
+    this.getTaskList(true);
   },
+  onShow: function onShow() {},
   onPullDownRefresh: function onPullDownRefresh() {
   },
   onReachBottom: function onReachBottom() {
   },
   methods: {
-    upload: function upload() {
+    getTaskList: function getTaskList(isReset) {var _this2 = this;
+      //数据饱和不再进行调用
+      if (this.status == 'noMore' && !isReset) return;
+      //重置数据
+      if (isReset) {
+        this.resetPage();
+        this.task_list = [];
+
+      } else {
+        this.page++;
+        this.changeStatus('loading');
+      }
+      this.$ajax.post('Home/get_task_list', { data: {
+          param: {
+            buyer_user_id: this.util.login_data.user_id } } }).
+
+      then(function (result) {
+        _this2.$set(_this2, 'total', result.total);
+        //无数据返回则重置状态
+        if (_this2.total != 0 && _this2.task_list.length >= _this2.total) {
+          _this2.status = 'noMore';
+          _this2.page--;
+          return;
+        }
+        var new_list = [];
+        new_list = _this2.task_list.concat(result.task_list);
+        _this2.$set(_this2, 'task_list', new_list);
+        _this2.changeStatus();
+      });
+    },
+    resetPage: function resetPage() {
+      this.page = 1;
+    },
+    changeStatus: function changeStatus(status) {
+      this.status = status || 'more';
+    },
+
+    upload: function upload() {var _this3 = this;
       uni.chooseImage({
         success: function success(chooseImageRes) {
           var tempFilePaths = chooseImageRes.tempFilePaths;
-
+          var _this = _this3;
           uni.uploadFile({
-            url: 'http://120.27.27.185:12341/ApiYouzan/upload/upload_file',
+            url: _this.util.config.api_url + '/upload/upload_file',
             filePath: tempFilePaths[0],
             name: 'file',
-            formData: {},
-
+            formData: {
+              token_access: _this.util.login_data.token_access },
 
             success: function success(uploadFileRes) {
-              console.log(uploadFileRes);
-              // console.log(uploadFileRes.data);
+              var licence_pic = '';
+              try {
+                licence_pic = JSON.parse(uploadFileRes.data).data.file.save_url;
+              } catch (e) {
+                licence_pic = '';
+              }
+
+              _this.$ajax.post('Home/edit_user_info', { data: {
+                  param: {
+                    user_id: _this.util.login_data.user_id,
+                    licence_pic: licence_pic } } }).
+
+              then(function (res) {
+                _this.licence_pic = _this.util.config.img_url + res.licence_pic;
+                _this.$forceUpdate();
+              });
+
             } });
 
         } });

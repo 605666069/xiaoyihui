@@ -2045,6 +2045,12 @@ input.data-v-2739a520,._select.data-v-2739a520 {
 }
 .num-wrap.data-v-15c9592b {
 }
+.img-wrap.data-v-15c9592b {
+	border: 1px solid #CDCDCD;
+	width: 260rpx;
+	height: 260rpx;
+	background-size: 100% auto;
+}
 
 
 .card-wrap.data-v-16910a89 {
@@ -2059,6 +2065,7 @@ input.data-v-2739a520,._select.data-v-2739a520 {
 	padding: 20rpx;
 	box-sizing: border-box;
 	float: left;
+	margin-right: 10rpx;
 }
 .img-wrap.data-v-16910a89 {
 	border: 1px solid #CDCDCD;

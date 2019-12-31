@@ -1,11 +1,10 @@
-import Vue from 'vue'
 import util from "@/common/util.js"
 import request from "@/common/request.js"
 import $router from "@/router/index.js"
 
 // 全局配置
 request.setConfig({
-	baseUrl: 'http://120.27.27.185:12341/ApiYouzan/', // 此为测试地址，需加入到域名白名单，或者更改为您自己的线上地址即可
+	baseUrl: util.config.api_url, // 此为测试地址，需加入到域名白名单，或者更改为您自己的线上地址即可
 	dataType: 'json', // 可删除，默认为json
 	responseType: 'text', // 可删除，默认为text
 	// 设置请求头，支持所有请求头设置，也可不设置，去掉header就行
@@ -17,7 +16,7 @@ request.setConfig({
 
 // 设置请求拦截器
 request.interceptors.request(config => {
-	if(config.data) config.data.param.token_access = uni.getStorageSync('login_data')&&uni.getStorageSync('login_data').token_access;
+	if(config.data&&config.data.param) config.data.param.token_access = util.login_data&&util.login_data.token_access;
   // 配置参数和全局配置相同，此优先级最高，会覆盖在其他地方的相同配置参数
 
   // 追加请求头，推荐

@@ -4,19 +4,21 @@ import App from './App'
 
 Vue.config.productionTip = true
 App.mpType = 'app'
-
+import util from "@/common/util.js"
+Vue.prototype.util = util
 
 import uniCard from '@/components/uni-card/uni-card.vue'
 import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue"
 import uniNumberBox from "@/components/uni-number-box/uni-number-box.vue"
 // import xflSelect from '@/common/xfl-select.vue'
 import uniPopup from "@/components/uni-popup/uni-popup.vue"
-import util from "@/common/util.js"
+import uniSection from '@/components/uni-section/uni-section.vue';
 
-Vue.prototype.util = util
 Vue.component('uniCard', uniCard)
 Vue.component('uniLoadMore', uniLoadMore)
 Vue.component('uniNumberBox', uniNumberBox)
+Vue.component('uniSection', uniSection)
+
 // Vue.component('uLink', uLink)
 // Vue.component('xflSelect', xflSelect)
 Vue.component('uniPopup', uniPopup)

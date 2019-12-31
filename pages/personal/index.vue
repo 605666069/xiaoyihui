@@ -1,7 +1,8 @@
 <template>
 	<view class="content">
-		<Client></Client>
-		<!-- <Sale></Sale> -->
+		 <!-- - type 用户类型：1超级管理员，2业务员，3.客户 -->
+		<Client v-if="page_type=='3'" ref="client"></Client>
+		<Sale v-if="page_type=='2'" ref="sale"></Sale>
 	</view>
 </template>
 
@@ -14,20 +15,43 @@
 		},
 		data() {
 			return {
-				title: 'Hello'
+				page_type:0
 			}
+		},
+		onShow() {
+			this.getUserInfo();
+			this.page_type = this.util.login_data.type;
+		},
+		onHide() {
+			this.page_type = 0;
 		},
 		onLoad() {
 	
 		},
 		onPullDownRefresh() {
-			console.log(22222)
 		},
 		onReachBottom() {
-			console.log(22222)
+			this.getChildFn()
 		},
 		methods: {
-	
+			getChildFn() {
+				switch (this.page_type){
+					case '2':
+						this.$refs.sale.switchList(false);
+						break;
+					case '3':
+						this.$refs.client.getTaskList(false);
+						break;
+					default:
+						break;
+				}
+				
+				
+			},
+			getUserInfo() {
+				this.util.getLoginData(this.$ajax);
+				
+			}
 		},
 		
 	}

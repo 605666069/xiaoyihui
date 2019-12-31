@@ -3,15 +3,15 @@
 		<uni-card  :is-shadow="true" class="card">
 			<view class="">
 				<view class="uni-flex uni-row  btn-list ">
-					<view class="uni-flex icon my-center">
-						<image src="../../static/uni.png" mode="" class="iamge my-border"></image>
+					<view class="img-wrap "  :style="{ backgroundImage: 'url('+ shop_detail.trade_pic+ ')'}"  >
+						
 					</view>
 					<view class="uni-flex text">
 						<view class="title uni-flex ">
-							<text  class="title-left">泰国香米</text>
+							<text  class="title-left">{{shop_detail.trade_name}}</text>
 						</view>
 						<view class="uni-flex">
-							<text  class="text-line">原装进口大米5KG </text>
+							<text  class="text-line">{{shop_detail.trade_desc}} </text>
 						</view>
 						
 					</view>
@@ -32,7 +32,7 @@
 					</view>
 					
 					<view class="">
-						<text >剩余 <text class="yellow"> 100 </text> </text>
+						<text >剩余 <text class="yellow"> {{shop_detail.trade_num}} </text> </text>
 					</view>
 					
 				</view>
@@ -41,11 +41,12 @@
 						<text>全部积分</text>
 					</view>
 					<view class="center yellow">
-						<text>{{my_trade_points}}</text>
+						<text>{{user_points}}</text>
 					</view>
 				</view>
 			</view>
-			<view class="pt-20">
+			<!-- - type 用户类型：1超级管理员，2业务员，3.客户 -->
+			<view class="pt-20" v-if="user_type!=2">
 				<button type="primary" @click="submit()">确认兑换</button>
 			</view>
 		</uni-card>
@@ -62,23 +63,25 @@
 					trade_points:30,
 					num:0
 				},
+				trade_id:0,
 				exc_num:0,
-				my_trade_points:130
+				user_points:this.util.login_data.points||0,
+				shop_id:0,
+				shop_detail:{
+					trade_pic:''
+				},
+				user_type:this.util.login_data.type||0,
+				
 			}
 		},
 		onLoad(data) {
 			
-			// let option = {}
-			// const payload = data.detailDate || data.payload;
-			// try {
-			// 	option = JSON.parse(decodeURIComponent(payload));
-			// } catch (error) {
-			// 	option = JSON.parse(payload);
-			// }
-			// console.log(option)
 		},
 		
+		
 		onShow (data) {
+			
+			this.trade_id = this.$router.route.query.shop_detail.trade_id ||{};
 			this.getDetail();
 		},
 		onPullDownRefresh() {
@@ -87,27 +90,51 @@
 		},
 		methods: {
 			getDetail() {
+				this.$ajax.post('home/get_trade_list',{data: {
+					param:{
+						trade_id:this.trade_id
+					}
+				}}).then((result)=>{
+					this.shop_detail = result.trade_list[0]||{};
+					this.getMax();
+				});
+			},
+			getMax() {
+				//用户可兑换最大值
+				let user_max = Math.floor(this.user_points / this.shop_detail.trade_points);
+			
+				this.max = (user_max >= this.shop_detail.trade_num)?this.shop_detail.trade_num:user_max;
 				
-				this.max = Math.floor(this.my_trade_points / this.detail_data.trade_points)
-
 			},
 			allNum() {
-				console.log('allnum :', this.exc_num);
 				this.exc_num = this.max;
 			},
 			changeNum(num) {
 				this.exc_num = num;
 			},
 			submit () {
-				console.log(this.exc_num);
-				// uni.showLoading({
-				//     title: '加载中',
-				// 	mask:true
-				// });
-				// setTimeout(()=>{
-				// 	uni.hideLoading();
-				// 	uni.navigateBack();
-				// },1000)
+				if(!this.exc_num) {
+					this.util.msg('请输入数量后点击兑换');
+					return;
+				}
+				uni.showLoading({
+					mask:true
+				});
+				this.$ajax.post('Home/add_exc_info',{data: {
+					param:{
+						exc_user_id:this.util.login_data.user_id,
+						exc_num:this.exc_num,
+						trade_id:this.shop_detail.trade_id
+					}
+				}}).then((result)=>{
+					this.util.getLoginData(this.$ajax);
+					
+					let shop_detail = result.trade_info;
+					this.$eventHub.$emit('shop_detail',shop_detail);
+					uni.navigateBack();
+					this.util.msg('积分兑换成功');
+				});
+				
 			}
 	
 		}
@@ -166,6 +193,13 @@
 		overflow: hidden;
 	}
 	.num-wrap {
+		
+	}
+	.img-wrap {
+		border: 1px solid #CDCDCD;
+		width: 260rpx;
+		height: 260rpx;
+		background-size: 100% auto;
 		
 	}
 </style>

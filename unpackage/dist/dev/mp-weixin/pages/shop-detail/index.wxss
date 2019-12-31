@@ -54,4 +54,10 @@
 }
 .num-wrap.data-v-15c9592b {
 }
+.img-wrap.data-v-15c9592b {
+	border: 1px solid #CDCDCD;
+	width: 260rpx;
+	height: 260rpx;
+	background-size: 100% auto;
+}
 

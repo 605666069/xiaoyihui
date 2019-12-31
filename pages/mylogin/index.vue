@@ -105,8 +105,8 @@
 				}
 				uni.showLoading();
 				this.$ajax.post('Login/do_login',{data: data}).then((res)=>{
-					uni.setStorageSync('login_data',res);
-					this.util.login_data = res;
+					this.util.changeLoginData(res);
+					this.util.getLoginData(this.$ajax);
 					this.$router.reLaunch('/pages/index/index');
 					
 				})
